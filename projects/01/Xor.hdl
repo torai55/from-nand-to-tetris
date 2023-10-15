@@ -12,6 +12,16 @@ CHIP Xor {
     IN a, b;
     OUT out;
 
+    // truth table: |x|y|out|
+    //              |0|0|0|
+    //              |0|1|1| => Not(x) And y
+    //              |1|0|1| => x And Not(y)
+    //              |1|1|0|
+    // (Not(x) And y) Or (x And Not(y))
     PARTS:
-    // Put your code here:
+    Not(in=a, out=nota);
+    Not(in=b, out=notb);
+    And(a=nota, b=b, out=notaAndb);
+    And(a=a, b=notb, out=aAndNotb);
+    Or(a=notaAndb, b=aAndNotb, out=out);
 }

@@ -13,6 +13,11 @@ CHIP Or {
     IN a, b;
     OUT out;
 
+    // De Morgan Laws: Not(a Or b) = Not(a) And Not(b)
+    // a Or b = Not(Not(a Or b)) = Not(Not(a) And Not(b))
     PARTS:
-    // Put your code here:
+    Not(in=a, out=nota);
+    Not(in=b, out=notb);
+    And(a=nota, b=notb, out=notaAndNotb);
+    Not(in=notaAndNotb, out=out);
 }

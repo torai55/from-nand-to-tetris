@@ -13,6 +13,14 @@ CHIP Mux {
     IN a, b, sel;
     OUT out;
 
+    // a And Not(sel): when sel = 0,
+    // a = 0 => out = 0
+    // a = 1 => out = 1
+    // output depends on a
+    // ∴ Mux: (a And Not(sel)) Or (sel And b)
     PARTS:
-    // Put your code here:
+    Not(in=sel, out=notSel);
+    And(a=a, b=notSel, out=aAndNotSel);
+    And(a=sel, b=b, out=selAndb);
+    Or(a=aAndNotSel, b=selAndb, out=out);
 }
