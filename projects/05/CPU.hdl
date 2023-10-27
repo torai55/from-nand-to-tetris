@@ -39,5 +39,36 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    Not(in=instruction[15], out=AInstruction);
+    // load A register either A-instruction or d1 is 1
+    Or(a=AInstruction, b=instruction[5], out=loadARegister);
+    Mux16(a=instruction, b=outALU, sel=instruction[15], out=inARegister);
+    ARegister(in=inARegister, load=loadARegister, out=outARegister, out[0..14]=addressM);
+    
+    // if A-instruction, don't load D register
+    And(a=instruction[15], b=instruction[4], out=loadDRegister);
+    DRegister(in=outALU, load=loadDRegister, out=outDRegister);
+
+    // if A-instruction, don't write memory
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+    Mux16(a=outARegister, b=inM, sel=instruction[12], out=inMOrInARegister);
+    ALU(x=outDRegister, y=inMOrInARegister,
+        zx=instruction[11], nx=instruction[10],
+        zy=instruction[9], ny=instruction[8],
+        f=instruction[7], no=instruction[6],
+        out=outALU, out=outM,
+        zr=outZr, ng=outNg);
+
+    Not(in=outNg, out=notOutNg);
+    Not(in=outZr, out=notOutZr);
+    And(a=notOutNg, b=notOutZr, out=outPos);
+    And(a=outPos, b=instruction[0], out=outJ3);
+    And(a=outZr, b=instruction[1], out=outJ2);
+    And(a=outNg, b=instruction[2], out=outJ1);
+    Or(a=outJ1, b=outJ2, out=outJ12);
+    Or(a=outJ12, b=outJ3, out=outJ);
+    // if A-instruction, don't load PC
+    And(a=instruction[15], b=outJ, out=loadPC);
+    PC(in=outARegister, load=loadPC, inc=true, reset=reset, out[0..14]=pc);
 }
