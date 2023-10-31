@@ -1,3 +1,5 @@
 .DS_Store
 *.out
 *.dat
+node_modules
+dist
